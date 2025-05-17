@@ -1,0 +1,19 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft-server
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE"
+      MEMORY: "6G"
+      MAX_PLAYERS: "4"
+      ENABLE_COMMAND_BLOCK: "false"
+      DIFFICULTY: "hard"
+      MODE: "survival"
+      LEVEL_NAME: "Hegetron's Server"
+      ONLINE_MODE: "true"
+      PVP: "true"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
