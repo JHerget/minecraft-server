@@ -1,0 +1,13 @@
+aws_region = "us-west-2"
+
+# Use an existing EC2 key pair name if you want SSH access.
+key_name = ""
+
+# Restrict SSH to your public IP, for example: ["203.0.113.10/32"].
+ssh_allowed_cidrs = []
+
+# Restrict this if you only want specific players/networks to connect.
+minecraft_allowed_cidrs = ["0.0.0.0/0"]
+
+instance_type       = "t3.large"
+root_volume_size_gb = 40

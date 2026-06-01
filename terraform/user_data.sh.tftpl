@@ -1,0 +1,61 @@
+#!/bin/bash
+set -euxo pipefail
+
+dnf update -y
+dnf install -y docker
+
+systemctl enable --now docker
+usermod -aG docker ec2-user
+
+mkdir -p /usr/local/lib/docker/cli-plugins
+arch="$(uname -m)"
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$${arch}" -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+mkdir -p /opt/${project_name}/data
+chown -R ec2-user:ec2-user /opt/${project_name}
+
+cat >/opt/${project_name}/docker-compose.yml <<'COMPOSE'
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    container_name: minecraft-server
+    restart: unless-stopped
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE"
+      TYPE: "VANILLA"
+      VERSION: "LATEST"
+      MEMORY: "6G"
+      MAX_PLAYERS: "4"
+      ENABLE_COMMAND_BLOCK: "false"
+      DIFFICULTY: "hard"
+      MODE: "survival"
+      LEVEL_NAME: "Hegetron's Server"
+      ONLINE_MODE: "true"
+      PVP: "true"
+    volumes:
+      - ./data:/data
+COMPOSE
+
+cat >/etc/systemd/system/minecraft-compose.service <<EOF
+[Unit]
+Description=Minecraft Docker Compose stack
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/${project_name}
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now minecraft-compose.service

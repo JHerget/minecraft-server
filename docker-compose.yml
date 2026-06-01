@@ -1,11 +1,14 @@
 services:
   minecraft:
-    image: itzg/minecraft-server
+    image: itzg/minecraft-server:latest
     container_name: minecraft-server
+    restart: unless-stopped
     ports:
       - "25565:25565"
     environment:
       EULA: "TRUE"
+      TYPE: "VANILLA"
+      VERSION: "LATEST"
       MEMORY: "6G"
       MAX_PLAYERS: "4"
       ENABLE_COMMAND_BLOCK: "false"
@@ -16,4 +19,3 @@ services:
       PVP: "true"
     volumes:
       - ./data:/data
-    restart: unless-stopped
