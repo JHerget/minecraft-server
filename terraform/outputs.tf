@@ -14,6 +14,11 @@ output "instance_id" {
 }
 
 output "ssh_command" {
-  description = "SSH command, if you provided a key pair and allowed your IP in ssh_allowed_cidrs."
-  value       = var.key_name != "" ? "ssh ec2-user@${aws_eip.minecraft.public_ip}" : "Set key_name and ssh_allowed_cidrs to enable SSH."
+  description = "SSH command, if you allowed your IP in ssh_allowed_cidrs."
+  value       = "ssh -i ${path.module}/minecraft-server.pem ec2-user@${aws_eip.minecraft.public_ip}"
+}
+
+output "private_key_path" {
+  description = "Local path to the generated EC2 SSH private key."
+  value       = local_sensitive_file.minecraft_private_key.filename
 }

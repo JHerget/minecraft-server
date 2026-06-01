@@ -1,5 +1,5 @@
 provider "aws" {
-  region = var.aws_region
+  region = "us-west-2"
 }
 
 data "aws_vpc" "default" {
@@ -34,9 +34,31 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 locals {
+  key_name = "minecraft-server"
+
   tags = {
     Project = var.project_name
   }
+}
+
+resource "tls_private_key" "minecraft" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "minecraft" {
+  key_name   = local.key_name
+  public_key = tls_private_key.minecraft.public_key_openssh
+
+  tags = merge(local.tags, {
+    Name = local.key_name
+  })
+}
+
+resource "local_sensitive_file" "minecraft_private_key" {
+  filename        = "${path.module}/${local.key_name}.pem"
+  content         = tls_private_key.minecraft.private_key_openssh
+  file_permission = "0600"
 }
 
 resource "aws_security_group" "minecraft" {
@@ -83,7 +105,7 @@ resource "aws_instance" "minecraft" {
   subnet_id                   = data.aws_subnets.default.ids[0]
   vpc_security_group_ids      = [aws_security_group.minecraft.id]
   associate_public_ip_address = true
-  key_name                    = var.key_name != "" ? var.key_name : null
+  key_name                    = aws_key_pair.minecraft.key_name
   user_data_replace_on_change = true
 
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {

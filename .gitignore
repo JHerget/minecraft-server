@@ -4,5 +4,6 @@ data/
 *.tfstate.*
 *.tfvars
 !terraform.tfvars.example
+*.pem
 crash-reports/
 logs/

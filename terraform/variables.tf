@@ -1,9 +1,3 @@
-variable "aws_region" {
-  description = "AWS region where the Minecraft server will run."
-  type        = string
-  default     = "us-west-2"
-}
-
 variable "project_name" {
   description = "Name prefix for AWS resources."
   type        = string
@@ -13,13 +7,7 @@ variable "project_name" {
 variable "instance_type" {
   description = "EC2 instance type. Increase this for larger worlds or more players."
   type        = string
-  default     = "t3.large"
-}
-
-variable "key_name" {
-  description = "Optional existing EC2 key pair name for SSH access."
-  type        = string
-  default     = ""
+  default     = "t3.xlarge"
 }
 
 variable "ssh_allowed_cidrs" {
